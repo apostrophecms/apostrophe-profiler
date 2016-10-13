@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/punkave/apostrophe-debug/issues"
   },
-  "homepage": "https://github.com/punkave/apostrophe-debug#readme"
+  "homepage": "https://github.com/punkave/apostrophe-debug#readme",
+  "dependencies": {
+    "performance-now": "^0.2.0"
+  }
 }
