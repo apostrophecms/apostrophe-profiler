@@ -24,6 +24,6 @@ module.exports = {
 
 ## Debugging cursors and finding wasted queries
 
-After each web request, this module logs a list of all [Apostrophe cursors](http://apostrophenow.org/tutorials/intermediate/cursors.html) just before actual MongoDB queries take place, including the state of all of their filters, the query criteria object, and a stack trace showing where the cursor was created.
+After each web request, this module logs a list of all [Apostrophe cursors](http://apostrophenow.org/docs/tutorials/intermediate/cursors.html) just before actual MongoDB queries take place, including the state of all of their filters, the query criteria object, and a stack trace showing where the cursor was created.
 
 We have used this feature to track down and eliminate redundant queries and to develop ideas for further query optimization.
