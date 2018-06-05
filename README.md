@@ -6,9 +6,15 @@ This module is currently alpha quality and undergoing rapid change. Since you're
 
 ## Installation
 
+Edit your `package.json` file. Add `apostrophe-debug` to your dependencies:
+
 ```
-npm install --save apostrophe-debug
+'apostrophe-debug': 'apostrophecms/apostrophe-debug'
 ```
+
+Run `npm install`.
+
+Now turn it on in your project:
 
 ```javascript
 // in data/local.js, not app.js
@@ -22,12 +28,12 @@ module.exports = {
 
 > Anything in your `data/local.js` file merges with the configuration object in `app.js`, and our standard deployment recipes *do not* deploy this file. That's why it's the logical place to turn on debugging features in a dev environment.
 
-## Debugging cursors and finding wasted queries
+## Debugging cursors, finding wasted queries, spotting slow widgets
 
 You'll need to set environment variables when launching your site:
 
 ```
-QUERIES=1 TOTAL_QUERIES=1 WIDGET_LOAD_TIMES=1 QUERY_TYPES=1 node app
+QUERIES=1 TOTAL_QUERIES=1 WIDGET_TIMES=1 QUERY_TYPES=1 node app
 ```
 
 You may of course omit any or all of these.
@@ -36,7 +42,7 @@ If you set `QUERIES`, after each web request, this module logs a list of all [Ap
 
 If you set just `TOTAL_QUERIES`, you just get a total number of queries made by each request, which is handy for checking your optimizations as you go.
 
-If you set `WIDGET_LOAD_TIMES`, you get load time information for all widget types loaded in the request.
+If you set `WIDGET_TIMES`, you get total time information for all widget types loaded in the request. This includes both time spent in the `load` method to asynchronously load resources (such as joins) and time spent in the `output` method to render the widget in the page.
 
 If you set nothing, no profiling occurs and no output is generated.
 
