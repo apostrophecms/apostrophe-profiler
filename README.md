@@ -24,6 +24,27 @@ module.exports = {
 
 ## Debugging cursors and finding wasted queries
 
-After each web request, this module logs a list of all [Apostrophe cursors](http://apostrophenow.org/tutorials/intermediate/cursors.html) just before actual MongoDB queries take place, including the state of all of their filters, the query criteria object, and a stack trace showing where the cursor was created.
+You'll need to set environment variables when launching your site:
 
-We have used this feature to track down and eliminate redundant queries and to develop ideas for further query optimization.
+```
+QUERIES=1 TOTAL_QUERIES=1 WIDGET_LOAD_TIMES=1 QUERY_TYPES=1 node app
+```
+
+You may of course omit any or all of these.
+
+If you set `QUERIES`, after each web request, this module logs a list of all [Apostrophe cursors](http://apostrophenow.org/tutorials/intermediate/cursors.html) just before actual MongoDB queries take place, including the state of all of their filters, the query criteria object, and a stack trace showing where the cursor was created.
+
+If you set just `TOTAL_QUERIES`, you just get a total number of queries made by each request, which is handy for checking your optimizations as you go.
+
+If you set `WIDGET_LOAD_TIMES`, you get load time information for all widget types loaded in the request.
+
+If you set nothing, no profiling occurs and no output is generated.
+
+We have used these features to track down and eliminate redundant queries and to develop ideas for further query optimization.
+
+## Changelog
+
+2018-06-05: environment variables rather than command line arguments. Easier to add to existing setups.
+
+2017-03-08: command line arguments are now necessary to get any output. If you do not pass them, no profiling occurs.
+
