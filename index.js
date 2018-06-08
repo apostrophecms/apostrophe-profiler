@@ -24,6 +24,9 @@ module.exports = {
     }
     if (process.env['WIDGET_TIMES']) {
       require('./lib/widgets.js')(self, options);
+      setInterval(function() {
+        self.outputWidgets();
+      }, 10000);
     }
   }
 };
