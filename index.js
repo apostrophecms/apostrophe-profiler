@@ -3,7 +3,11 @@ var _ = require('lodash');
 module.exports = {
   construct: function(self, options) {
     // bc
-    process.env['WIDGET_TIMES'] = process.env['WIDGET_TIMES'] || process.env['WIDGET_LOAD_TIMES'];
+    if (!process.env['WIDGET_TIMES']) {
+      if (process.env['WIDGET_LOAD_TIMES']) {
+        process.env['WIDGET_TIMES'] = process.env['WIDGET_LOAD_TIMES'];
+      }
+    }
     // To avoid confusing people already using the module before it required options to
     // actually output anything
     var envs = [
