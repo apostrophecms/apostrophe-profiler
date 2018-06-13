@@ -56,6 +56,12 @@ WIDGET_TIMES=1 node app
 
 Print the time spent loading and rendering each type of widget during the request. Also prints the cumulative time for each widget type every 10 seconds, which is often more useful for studying performance under load.
 
+```
+REQUEST_TIMES=1 node app
+```
+
+Prints the amount of time spent on the total request and various portions of it, including cumulative time to reach various points such as the start and end of `pageBeforeSend`. Note that figures are cumulative from the start of the request, so if you want to look at how long `pageBeforeSend` took compare its end time to its start time.
+
 If you set nothing, no profiling occurs and no output is generated.
 
 We have used these features to track down and eliminate redundant queries and to develop ideas for further query optimization.
