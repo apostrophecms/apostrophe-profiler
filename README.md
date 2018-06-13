@@ -30,25 +30,39 @@ module.exports = {
 
 ## Debugging cursors, finding wasted queries, spotting slow widgets
 
-You'll need to set environment variables when launching your site:
+You'll need to set environment variables when launching your site. An example:
 
 ```
-QUERIES=1 TOTAL_QUERIES=1 WIDGET_TIMES=1 QUERY_TYPES=1 node app
+QUERIES=1 node app
 ```
 
-You may of course omit any or all of these.
+This example prints the elapsed time in milliseconds for each Apostrophe cursor query made in each request and what kind of Apostrophe cursor it came from, sorted in descending order by time consumed. You will also get information about the time spent in the stages of each query.
 
-If you set `QUERIES`, after each web request, this module logs a list of all [Apostrophe cursors](http://apostrophenow.org/tutorials/intermediate/cursors.html) just before actual MongoDB queries take place, including the state of all of their filters, the query criteria object, and a stack trace showing where the cursor was created.
+```
+QUERIES=1 QUERY_CRITERIA=1 node app
+```
 
-If you set just `TOTAL_QUERIES`, you just get a total number of queries made by each request, which is handy for checking your optimizations as you go.
+Print the above, plus the MongoDB criteria for each query.
 
-If you set `WIDGET_TIMES`, you get total time information for all widget types loaded in the request. This includes both time spent in the `load` method to asynchronously load resources (such as joins) and time spent in the `output` method to render the widget in the page.
+```
+TOTAL_QUERIES=1 node app
+```
+
+Total time spent in cursor queries only.
+
+```
+WIDGET_TIMES=1 node app
+```
+
+Print the time spent loading and rendering each type of widget during the request. Also prints the cumulative time for each widget type every 10 seconds, which is often more useful for studying performance under load.
 
 If you set nothing, no profiling occurs and no output is generated.
 
 We have used these features to track down and eliminate redundant queries and to develop ideas for further query optimization.
 
 ## Changelog
+
+2018-06-13: new functionality for debugging query performance.
 
 2018-06-05: environment variables rather than command line arguments. Easier to add to existing setups.
 
