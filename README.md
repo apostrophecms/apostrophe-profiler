@@ -1,15 +1,13 @@
-# apostrophe-debug
+# apostrophe-profiler
 
-This module provides debugging conveniences for the [Apostrophe CMS](http://apostrophenow.org), version 2.x or better.
-
-This module is currently alpha quality and undergoing rapid change. Since you're not going to use it in production and it doesn't modify your data, there isn't much cause for worry, but expect to be checking this README often as we add and change the functionality.
+This module finds slow code. It provides performance profiling for the [Apostrophe CMS](http://apostrophenow.org), version 2.x or better.
 
 ## Installation
 
-Edit your `package.json` file. Add `apostrophe-debug` to your dependencies:
+Edit your `package.json` file. Add `apostrophe-profiler` to your dependencies:
 
 ```
-'apostrophe-debug': 'apostrophecms/apostrophe-debug'
+'apostrophe-profiler': 'apostrophecms/apostrophe-profiler'
 ```
 
 Run `npm install`.
@@ -21,52 +19,98 @@ Now turn it on in your project:
 
 module.exports = {
   modules: {
-    apostrophe-debug: {}
+    apostrophe-profiler: {}
   }
 };
 ```
 
 > Anything in your `data/local.js` file merges with the configuration object in `app.js`, and our standard deployment recipes *do not* deploy this file. That's why it's the logical place to turn on debugging features in a dev environment.
 
-## Debugging cursors, finding wasted queries, spotting slow widgets
+## Finding slow code
 
-You'll need to set environment variables when launching your site. An example:
-
-```
-QUERIES=1 node app
-```
-
-This example prints the elapsed time in milliseconds for each Apostrophe cursor query made in each request and what kind of Apostrophe cursor it came from, sorted in descending order by time consumed. You will also get information about the time spent in the stages of each query.
+**By default, nothing happens.** Turn it on with an environment variable
+when you test your app:
 
 ```
-QUERIES=1 QUERY_CRITERIA=1 node app
+APOS_PROFILER=per-request node app
 ```
 
-Print the above, plus the MongoDB criteria for each query.
+After each request, you'll see output like this:
 
 ```
-TOTAL_QUERIES=1 node app
 ```
 
-Total time spent in cursor queries only.
+If you prefer, you can get cumulative figures every 10 seconds. This is
+useful when testing heavy loads, and also includes figures for
+activity that did not take place inside a web request:
 
 ```
-WIDGET_TIMES=1 node app
+APOS_PROFILER=cumulative node app
 ```
 
-Print the time spent loading and rendering each type of widget during the request. Also prints the cumulative time for each widget type every 10 seconds, which is often more useful for studying performance under load.
+By default, activities that consumed less than 1% of the time
+are not shown. You can change this figure, for instance
+to 2%:
 
 ```
-REQUEST_TIMES=1 node app
+APOS_PROFILER=cumulative,threshold=2 node app
 ```
 
-Prints the amount of time spent on the total request and various portions of it, including cumulative time to reach various points such as the start and end of `pageBeforeSend`. Note that figures are cumulative from the start of the request, so if you want to look at how long `pageBeforeSend` took compare its end time to its start time.
+## "How come the numbers don't add up to 100%?"
 
-If you set nothing, no profiling occurs and no output is generated.
+Many categories overlap. Time spent in cursors is also part of the
+time spent in various `callAll` methods like `pageBeforeSend`.
+The same goes for widgets and cursors. 
 
-We have used these features to track down and eliminate redundant queries and to develop ideas for further query optimization.
+## Tracking time in your own code
+
+The profiler already breaks down for you which widgets,
+cursor types and `callAll` methods such as `pageBeforeSend`
+took up the most time. You can also track time yourself,
+like this:
+
+```javascript
+// Get a function to call after the action is complete
+const p = self.apos.utils.profile(req, 'external-apis.twitter.list');
+// Let's call a made-up Twitter API with a callback as an example
+return twitter.getList(function(err, list) {
+  // Tell the profiler the action is complete
+  p();
+  // Do something with err and list here
+});
+```
+
+If you prefer you can report the time consumed yourself, in
+milliseconds:
+
+```javascript
+self.apos.utils.profile(req, 'external-apis.twitter.list', 50);
+```
+
+Notice we pass `req` and a key identifying the action. If
+there is no web request involved, you can omit `req` entirely
+or pass `null`. The key is namespaced with `.` and the
+most general category should come first, to add up all of the
+time tracked in that category.
+
+> It is safe to call this API even when this module is not installed. The `apostrophe` module ships with a stub version that does nothing so you can ship your own modules with profiling calls in place.
+
+## "Great, but how do I make my code faster?"
+
+A few tips to get you started:
+
+* Always set projections with your joins, or `areas: false, joins: false`.
+* Don't hit third-party web APIs on every request. Always cache those results.
+* Don't hit third-party APIs at all when building the page, if you can
+avoid it. Instead, hit them via AJAX requests after the page loads.
+* Use the `apostrophe-global` module wisely. Don't fill it with joins,
+especially to things you don't need on every single request. *Do*
+use it to directly hold things you would otherwise join with but need
+on every request.
 
 ## Changelog
+
+2018-06-15: API-stable 2.0.0 release.
 
 2018-06-13: new functionality for debugging query performance.
 
