@@ -1,6 +1,6 @@
 # apostrophe-profiler
 
-This module finds slow code. It provides performance profiling for the [Apostrophe CMS](http://apostrophenow.org), version 2.x or better.
+This module finds slow code. It provides performance profiling for the [Apostrophe CMS](https://apostrophecms.org), version 2.x or better.
 
 ## Installation
 
