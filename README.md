@@ -2,6 +2,8 @@
 
 This module finds slow code. It provides performance profiling for the [Apostrophe CMS](https://apostrophecms.org), version 2.x or better.
 
+This module only examines performance on the server side (it helps you optimize Time to First Byte, or TTFB). For browser-side performance issues, make sure you have enabled `minify: true` for the `apostrophe-assets` module and use tools like Pagespeed to get more suggestions.
+
 ## Installation
 
 Edit your `package.json` file. Add `apostrophe-profiler` to your dependencies:
@@ -83,6 +85,12 @@ APOS_PROFILER=cumulative node app
 
 > The cumulative view is usually best for simulating production loads as it smooths out differences between individual requests.
 
+## Understanding the output
+
+The output for time spent in widgets is worth discussing. Each widget's time is broken down into `load` time and `output` time. The `load` time is spent in `load` methods and may involve third-party APIs or just Apostrophe joins. The `output` time is spent in your Nunjucks templates and helper functions.
+
+The output for time spent in cursors is interesting too. Time spent in `main` is usually attributable to the actual MongoDB query for that type of document. Time spent in `after` is usually attributable to joins, widget loaders for content in the document, and so on.
+
 ## Changing the threshold of "interesting" activity
 
 By default, activities that consumed less than 1% of the time
@@ -146,14 +154,4 @@ avoid it. Instead, hit them via AJAX requests after the page loads.
 especially to things you don't need on every single request. *Do*
 use it to directly hold things you would otherwise join with but need
 on every request.
-
-## Changelog
-
-2018-06-15: API-stable 2.0.0 release.
-
-2018-06-13: new functionality for debugging query performance.
-
-2018-06-05: environment variables rather than command line arguments. Easier to add to existing setups.
-
-2017-03-08: command line arguments are now necessary to get any output. If you do not pass them, no profiling occurs.
 
