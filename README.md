@@ -142,7 +142,82 @@ time tracked in that category.
 
 > It is safe to call this API even when this module is not installed. The `apostrophe` module ships with a stub version that does nothing so you can ship your own modules with profiling calls in place.
 
-## "Great, but how do I make my code faster?"
+## Speeding up the database: `index-suggestions`
+
+This module can also suggest additional MongoDB database indexes for your database. Apostrophe adds several "out of the box," but your project may have its own common queries that are sped up further by adding your own.
+
+To activate this feature, use:
+
+```
+APOS_PROFILER=index-suggestions node app
+```
+
+A report will be printed every 5 seconds, assuming there have been new queries that result in new index suggestions.
+
+### Interpreting index suggestions
+
+*You have to apply your own knowledge when interpreting these suggestions.* For instance, the module might suggest this index:
+
+```
+{mySpecialSlug:1,updatedAt:-1}
+```
+
+But you know that `mySpecialSlug` has a unique or nearly unique value and that all of your queries are for a specific value of `mySpecialSlug`.
+
+If so, you only need this index to speed them up:
+
+```
+{mySpecialSlug:1}
+```
+
+On the other hand, a suggestion like this, which you might see after looking at a "manage" view, may make a lot of sense:
+
+```
+{slug:1,type:1,updatedAt:-1}
+```
+
+Also, be aware that with the exception of a few standard indexes in Apostrophe, *this feature does not know what indexes you already have or how they might already be meeting the need.*
+
+Finally, *remember that MongoDB limits you to 64 databases per collection*, and that more indexes mean more time and space consumed when inserting documents. Usually, for a CMS-driven website, this is fine because you are much more interested in read performance. But, do bear it in mind.
+
+### Adding an index
+
+You can do this directly in the MongoDB shell:
+
+```
+db.aposDocs.ensureIndex({ slug: 1, type: 1, updatedAt: -1 })
+```
+
+You can also do it programmatically in any module. For instance:
+
+```
+// in lib/modules/my-module/index.js
+module.exports = {
+  afterConstruct: function(self, callback) {
+    return self.addCustomIndex(callback);
+  },
+  construct: function(self, options) {
+    self.addCustomIndex = function(callback) {
+      return self.apos.docs.db.ensureIndex(
+        { slug: 1, type: 1, updatedAt: -1 },
+        callback
+      );
+    };
+  }
+};
+```
+
+For more information see the MongoDB documentation.
+
+### Displaying the indexes you already have
+
+One more MongoDB shell tip: you can list the indexes you already have, to make sure the one you are adding is not redundant or similar enough to be unnecessary.
+
+```
+db.aposDocs.getIndexes()
+```
+
+## "Great, but what else can I do to make my code faster?"
 
 A few tips to get you started:
 
@@ -154,4 +229,6 @@ avoid it. Instead, hit them via AJAX requests after the page loads.
 especially to things you don't need on every single request. *Do*
 use it to directly hold things you would otherwise join with but need
 on every request.
+* Use the `index-suggestions` feature of this module, but remember that you must apply your own knowledge as well.
+
 
