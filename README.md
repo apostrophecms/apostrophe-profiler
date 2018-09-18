@@ -180,6 +180,8 @@ Also, be aware that with the exception of a few standard indexes in Apostrophe, 
 
 Finally, *remember that MongoDB limits you to 64 databases per collection*, and that more indexes mean more time and space consumed when inserting documents. Usually, for a CMS-driven website, this is fine because you are much more interested in read performance. But, do bear it in mind.
 
+> This module only makes index suggestions based on queries that flow normally through Apostrophe's cursor APIs, such as typical page and piece loading queries. Direct MongoDB queries on the collection object are not analyzed.
+
 ### Adding an index
 
 You can do this directly in the MongoDB shell:

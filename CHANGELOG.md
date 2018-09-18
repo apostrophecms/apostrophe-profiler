@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0
+
+New `index-suggestions` feature for database query optimization when your database is large.
+
+## Prehistory
+
 2018-06-25: Stable 2.0.0 release.
 
 2018-06-15: stabilized environment variable API.
