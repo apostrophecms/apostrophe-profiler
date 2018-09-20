@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.1
+
+Minor tweaks to the `index-suggestions` output to take into account new information about situations that can confuse MongoDB into using a poorly chosen index. You will receive more suggestions than previously.
+
 ## 2.1.0
 
 New `index-suggestions` feature for database query optimization when your database is large.

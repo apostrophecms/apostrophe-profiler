@@ -156,25 +156,13 @@ A report will be printed every 5 seconds, assuming there have been new queries t
 
 ### Interpreting index suggestions
 
-*You have to apply your own knowledge when interpreting these suggestions.* For instance, the module might suggest this index:
+*You have to apply your own knowledge when interpreting these suggestions.* For instance, the module might suggest many indexes, but you have reason to believe MongoDB will select one that has enough of the properties in common for several of the cases.
 
-```
-{mySpecialSlug:1,updatedAt:-1}
-```
+However, be aware that MongoDB can make mistakes. For instance, if your query involves an equality check that you know will return only one document, but a sort like `updatedAt` is still explicitly or implicitly present, MongoDB may believe that it should choose the default index on `updatedAt`, which will result in scanning the entire database. So in such cases you should change your actual query to get rid of the sort:
 
-But you know that `mySpecialSlug` has a unique or nearly unique value and that all of your queries are for a specific value of `mySpecialSlug`.
+`self.find(req, { slug: 'one-unique-thing' }).sort(false)...`
 
-If so, you only need this index to speed them up:
-
-```
-{mySpecialSlug:1}
-```
-
-On the other hand, a suggestion like this, which you might see after looking at a "manage" view, may make a lot of sense:
-
-```
-{slug:1,type:1,updatedAt:-1}
-```
+Or, go ahead and add the suggested indexes that include the sort.
 
 Also, be aware that with the exception of a few standard indexes in Apostrophe, *this feature does not know what indexes you already have or how they might already be meeting the need.*
 
